@@ -24,7 +24,8 @@ import torch
 import cv2  # pylint: disable=import-error
 from .network import nets
 from . import decoder, show, transforms
-
+import json
+import numpy as np
 try:
     import matplotlib.pyplot as plt
 except ImportError:
@@ -37,7 +38,7 @@ class Visualizer(object):
         self.processor = processor
         self.args = args
 
-    def __call__(self, first_image, fig_width=4.0, **kwargs):
+    def __call__(self, first_image, fig_width=8.0, **kwargs):
         if plt is None:
             while True:
                 image, all_fields = yield
@@ -65,10 +66,27 @@ class Visualizer(object):
                                        markersize=1, linewidth=6)
         else:
             viz = show.KeypointPainter(show_box=False)
-
+        rk = 0
+        json_data = []
         while True:
             image, all_fields = yield
+            r = time.time()
             keypoint_sets, _ = self.processor.keypoint_sets(all_fields)
+            #print(keypoint_sets,'--------------------------keypoint')
+            #print(time.time()-r , 'hcl--------------')
+            for i, val in enumerate(keypoint_sets):
+                bbox_xcycwh_1 = [0, 0, 0, 0]
+                # print(pose[i],'pose')
+                p_t = []
+                for r in range(len(val)):
+                    # if pose[i][r][0] == pose[i][r][1]  == pose[i][r][2] == 0:
+                    #if val[r][2] != 0 or val[r][1] != 0 or val[r][0] != 0:
+                    p_t.append(val[r])
+            #fileObject = open('jsonFile.json', 'a')
+            #print(p_t)
+            p_t= np.vstack(p_t)
+            p_t = p_t.tolist()
+
 
             draw_start = time.time()
             while ax.lines:
@@ -76,9 +94,18 @@ class Visualizer(object):
             mpl_im.set_data(image)
             viz.keypoints(ax, keypoint_sets)
             fig.canvas.draw()
+
+
+            rk = rk+1
+            print(rk,'iiiiiiiiiiiiiiiiiiii')
+            plt.savefig("./r/%s.jpg"%(str(rk)) )
             print('draw', time.time() - draw_start)
             plt.pause(0.01)
-
+            json_data.append(p_t)
+            if len(json_data) ==40:
+                with open('jsonFile.json', 'a') as fileObject:
+                    jsObj = json.dump(json_data,fileObject)
+                    fileObject.close()
         plt.close(fig)
 
 
@@ -96,7 +123,7 @@ def cli():
                         help='disable CUDA')
     parser.add_argument('--source', default='0',
                         help='OpenCV source url. Integer for webcams. Or ipwebcam streams.')
-    parser.add_argument('--scale', default=0.1, type=float,
+    parser.add_argument('--scale', default= .4, type=float,#0.1
                         help='input image scale factor')
     args = parser.parse_args()
 
@@ -107,6 +134,7 @@ def cli():
     # add args.device
     args.device = torch.device('cpu')
     if not args.disable_cuda and torch.cuda.is_available():
+        print('cuda?????????????????????????????????????????????????')
         args.device = torch.device('cuda')
 
     return args
@@ -121,19 +149,24 @@ def main():
     processor = decoder.factory_from_args(args, model)
 
     last_loop = time.time()
-    capture = cv2.VideoCapture(args.source)
-
+    #capture = cv2.VideoCapture(args.source)
+    #capture = cv2.VideoCapture('/home/dabai/project/lighttrack/demo/B29.MP4')
+    #capture = cv2.VideoCapture('/home/dabai/project/lighttrack/data/demo/video.mp4')
+    #capture = cv2.VideoCapture('/home/dabai/project/lighttrack/data/demo/football2.mp4')
+    #capture = cv2.VideoCapture('/home/dabai/project/deep_sort_pytorch/jump2.mp4')
+    capture = cv2.VideoCapture('/home/dabai/openpose/1.avi')
     visualizer = None
     while True:
         _, image_original = capture.read()
         if image_original is None:
             print('no more images captured')
             break
+        #image_original = cv2.imread('/home/dabai/project/openpifpaf/images/14.png')#20190911151249.jpg')
 
         image = cv2.resize(image_original, None, fx=args.scale, fy=args.scale)
         print('resized image size: {}'.format(image.shape))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
+        image_original = cv2.cvtColor(image_original, cv2.COLOR_BGR2RGB)
         if visualizer is None:
             visualizer = Visualizer(processor, args)(image)
             visualizer.send(None)
@@ -145,7 +178,8 @@ def main():
         print('preprocessing time', time.time() - start)
 
         fields = processor.fields(torch.unsqueeze(processed_image, 0))[0]
-        visualizer.send((image, fields))
+        #print(fields[0],'keypoint?????')
+        visualizer.send((image_original, fields))#image     image_original
 
         print('loop time = {:.3}s, FPS = {:.3}'.format(
             time.time() - last_loop, 1.0 / (time.time() - last_loop)))

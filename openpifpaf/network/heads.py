@@ -92,12 +92,12 @@ class CompositeField(Head, torch.nn.Module):
             return int(m.group(1))
 
         return {
-            'paf': 19,
-            'pafb': 19,
-            'pafsb': 19,
-            'pafs19': 19,
-            'wpaf': 19,
-        }.get(head_name, 17)
+            'paf': 26,#19,
+            'pafb': 26,#19,
+            'pafsb': 26, #19,
+            'pafs19': 26,#19,
+            'wpaf': 26,#19,
+        }.get(head_name, 24)#17)
 
     @staticmethod
     def determine_nvectors(head_name):

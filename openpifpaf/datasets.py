@@ -7,11 +7,19 @@ from PIL import Image
 from . import transforms, utils
 
 
-ANNOTATIONS_TRAIN = 'data-mscoco/annotations/person_keypoints_train2017.json'
-ANNOTATIONS_VAL = 'data-mscoco/annotations/person_keypoints_val2017.json'
-IMAGE_DIR_TRAIN = 'data-mscoco/images/train2017/'
-IMAGE_DIR_VAL = 'data-mscoco/images/val2017/'
+#ANNOTATIONS_TRAIN = 'data-mscoco/annotations/person_keypoints_train2017.json'
+#ANNOTATIONS_VAL = 'data-mscoco/annotations/person_keypoints_val2017.json'
+#IMAGE_DIR_TRAIN = 'data-mscoco/images/train2017/'
+#IMAGE_DIR_VAL = 'data-mscoco/images/val2017/'
 
+#ANNOTATIONS_TRAIN = '/home/dabai/datasets/coco/person_keypoints_val2017.json'
+#ANNOTATIONS_VAL = '/home/dabai/datasets/coco/person_keypoints_val2017.json'
+#IMAGE_DIR_TRAIN = '/home/dabai/datasets/coco/val2017/'
+#IMAGE_DIR_VAL = '/home/dabai/datasets/coco/val2017/'
+ANNOTATIONS_TRAIN = '/home/dabai/datasets/data0802json_oneonly.json'
+ANNOTATIONS_VAL = '/home/dabai/datasets/data0802json_oneonly.json'
+IMAGE_DIR_TRAIN = '/home/dabai/datasets/data0802/'
+IMAGE_DIR_VAL = '/home/dabai/datasets/data0802/'
 
 def collate_images_anns_meta(batch):
     images = torch.utils.data.dataloader.default_collate([b[0] for b in batch])
@@ -106,10 +114,12 @@ class CocoKeypoints(torch.utils.data.Dataset):
             'file_name': image_info['file_name'],
         }
 
-        if 'flickr_url' in image_info:
+        '''if 'flickr_url' in image_info:
+            print(image_info,'??')
+            print(image_info['flickr_url'].rsplit('/', maxsplit=1),'iiiiiiiiii')
             _, flickr_file_name = image_info['flickr_url'].rsplit('/', maxsplit=1)
             flickr_id, _ = flickr_file_name.split('_', maxsplit=1)
-            meta_init['flickr_full_page'] = 'http://flickr.com/photo.gne?id={}'.format(flickr_id)
+            meta_init['flickr_full_page'] = 'http://flickr.com/photo.gne?id={}'.format(flickr_id)'''
 
         # preprocess image and annotations
         image, anns, meta = self.preprocess(image, anns, None)
@@ -141,7 +151,6 @@ class ImageList(torch.utils.data.Dataset):
         image_path = self.image_paths[index]
         with open(image_path, 'rb') as f:
             image = Image.open(f).convert('RGB')
-
         anns = []
         image, anns, meta = self.preprocess(image, anns, None)
         meta.update({
@@ -204,6 +213,7 @@ def train_factory(args, preprocess, target_transforms):
         target_transforms=target_transforms,
         n_images=args.n_images,
     )
+
     if args.duplicate_data:
         train_data = torch.utils.data.ConcatDataset(
             [train_data for _ in range(args.duplicate_data)])

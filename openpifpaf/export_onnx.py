@@ -191,8 +191,8 @@ def simplify(infile, outfile=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--checkpoint', default='resnet50')
-    parser.add_argument('--outfile', default='openpifpaf-resnet50.onnx')
+    parser.add_argument('--checkpoint', default='./output_2*2_200epoch/shufflenetv2x2-pif-paf-edge401-190905-185235-4beff1de.pkl')
+    parser.add_argument('--outfile', default='openpifpaf-shufflenetv2x2.onnx')
     parser.add_argument('--simplify', dest='simplify', default=False, action='store_true')
     parser.add_argument('--no-polish', dest='polish', default=True, action='store_false',
                         help='runs checker, optimizer and shape inference')

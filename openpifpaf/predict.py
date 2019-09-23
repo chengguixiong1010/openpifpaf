@@ -12,7 +12,7 @@ import torch
 
 from .network import nets
 from . import datasets, decoder, show, transforms
-
+import time
 
 def cli():
     parser = argparse.ArgumentParser(
@@ -22,7 +22,8 @@ def cli():
     )
     nets.cli(parser)
     decoder.cli(parser, force_complete_pose=False, instance_threshold=0.1, seed_threshold=0.5)
-    parser.add_argument('images', nargs='*',
+    parser.add_argument('images', default=['images/1.jpg','images/2.jpg','images/3.jpg','images/4.jpg','images/5.jpg','images/6.jpg',
+                                           'images/7.jpg','images/8.jpg','images/9.jpg','images/10.jpg','images/11.jpg','images/12.jpg','images/12.jpg','images/14.png'],nargs='*',
                         help='input images')
     parser.add_argument('--glob',
                         help='glob expression for input images (for many images)')
@@ -31,7 +32,7 @@ def cli():
                               'sure input images have distinct file names.'))
     parser.add_argument('--show', default=False, action='store_true',
                         help='show image of output overlay')
-    parser.add_argument('--output-types', nargs='+', default=['skeleton', 'json'],
+    parser.add_argument('--output-types', nargs='+', default=['skeleton', 'keypoints'],
                         help='what to output: skeleton, keypoints, json')
     parser.add_argument('--batch-size', default=1, type=int,
                         help='processing batch size')
@@ -39,7 +40,7 @@ def cli():
                         help='apply preprocessing to batch images')
     parser.add_argument('--loader-workers', default=2, type=int,
                         help='number of workers for data loading')
-    parser.add_argument('--disable-cuda', action='store_true',
+    parser.add_argument('--disable-cuda', action='store_false',
                         help='disable CUDA')
     parser.add_argument('--figure-width', default=10.0, type=float,
                         help='figure width')
@@ -69,6 +70,7 @@ def cli():
     args.device = torch.device('cpu')
     args.pin_memory = False
     if not args.disable_cuda and torch.cuda.is_available():
+        print('cuda?????????????????????????')
         args.device = torch.device('cuda')
         args.pin_memory = True
 
@@ -102,6 +104,7 @@ def main():
             transforms.CenterPad(args.long_edge),
             transforms.EVAL_TRANSFORM,
         ])
+
     data = datasets.ImageList(args.images, preprocess=preprocess)
     data_loader = torch.utils.data.DataLoader(
         data, batch_size=args.batch_size, shuffle=False,
@@ -114,6 +117,7 @@ def main():
                                             markersize=1, linewidth=6)
 
     for image_i, (image_tensors_batch, _, meta_batch) in enumerate(data_loader):
+        time_1 = time.time()
         image_tensors_batch_gpu = image_tensors_batch.to(args.device, non_blocking=True)
         fields_batch = processor.fields(image_tensors_batch_gpu)
         pred_batch = processor.annotations_batch(fields_batch, debug_images=image_tensors_batch)
@@ -126,7 +130,7 @@ def main():
                 file_name = os.path.basename(meta['file_name'])
                 output_path = os.path.join(args.output_directory, file_name)
             logging.info('image %d: %s to %s', image_i, meta['file_name'], output_path)
-
+            print(time.time() - time_1, '--------------time_1')
             # load the original image if necessary
             cpu_image = None
             if args.debug or \
@@ -152,7 +156,7 @@ def main():
 
             if 'keypoints' in args.output_types:
                 with show.image_canvas(cpu_image,
-                                       output_path + '.keypoints.png',
+                                       './results/'+output_path + '.keypoints.png',
                                        show=args.show,
                                        fig_width=args.figure_width,
                                        dpi_factor=args.dpi_factor) as ax:
@@ -160,7 +164,7 @@ def main():
 
             if 'skeleton' in args.output_types:
                 with show.image_canvas(cpu_image,
-                                       output_path + '.skeleton.png',
+                                       './results/'+output_path + '.skeleton.png',
                                        show=args.show,
                                        fig_width=args.figure_width,
                                        dpi_factor=args.dpi_factor) as ax:

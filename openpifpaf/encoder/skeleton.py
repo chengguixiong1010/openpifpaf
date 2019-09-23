@@ -5,7 +5,7 @@ from .annrescaler import AnnRescaler
 
 
 class Skeleton(object):
-    def __init__(self, *, max_instances=100, n_keypoints=17):
+    def __init__(self, *, max_instances=100, n_keypoints=24):#17):
         self.max_instances = max_instances
         self.n_keypoints = n_keypoints
 

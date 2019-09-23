@@ -19,7 +19,6 @@ SHUFFLENETV2X1_MODEL = ('https://storage.googleapis.com/openpifpaf-pretrained/v0
                         'shufflenetv2x1-pif-paf-edge401-190705-151607-d9a35d7e.pkl')
 SHUFFLENETV2X2_MODEL = ('https://storage.googleapis.com/openpifpaf-pretrained/v0.8.0/'
                         'shufflenetv2x2-pif-paf-edge401-190705-151618-f8da8c15.pkl')
-
 LOG = logging.getLogger(__name__)
 
 
@@ -410,7 +409,7 @@ def resnet_factory_from_scratch(basename, base_vision, headnames):
 
 def cli(parser):
     group = parser.add_argument_group('network configuration')
-    group.add_argument('--checkpoint', default=None,
+    group.add_argument('--checkpoint', default='./outputs/shufflenetv2x2-pif-paf-edge401-190912-173922-918d379c.pkl',#'./output_2*2_200epoch/shufflenetv2x2-pif-paf-edge401-190905-185235-4beff1de.pkl', #
                        help=('Load a model from a checkpoint. '
                              'Use "resnet50", "resnet101" '
                              'or "resnet152" for pretrained OpenPifPaf models.'))
@@ -418,7 +417,7 @@ def cli(parser):
                        help='apply atrous')
     group.add_argument('--dilation-end', default=None, type=int,
                        help='apply atrous')
-    group.add_argument('--basenet', default=None,
+    group.add_argument('--basenet', default=None,#None
                        help='base network, e.g. resnet50block5')
     group.add_argument('--headnets', default=['pif', 'paf'], nargs='+',
                        help='head networks')

@@ -27,7 +27,7 @@ class Pif(Encoder):
                 n_keypoints = int(m.group(1))
                 self.log.debug('using %d keypoints for pif', n_keypoints)
             else:
-                n_keypoints = 17
+                n_keypoints = 24#17
         self.n_keypoints = n_keypoints
         self.v_threshold = v_threshold
         self.side_length = self.default_side_length

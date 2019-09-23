@@ -16,7 +16,7 @@ class Paf(Encoder):
 
     def __init__(self, head_name, stride, *,
                  skeleton=None,
-                 n_keypoints=17,
+                 n_keypoints=24,#17,
                  v_threshold=0,
                  **kwargs):
         self.log = logging.getLogger(self.__class__.__name__)

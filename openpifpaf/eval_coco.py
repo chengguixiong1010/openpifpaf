@@ -128,7 +128,7 @@ class EvalCoco(object):
             image_annotations.append({
                 'image_id': image_id,
                 'category_id': category_id,
-                'keypoints': np.zeros((17*3,)).tolist(),
+                'keypoints': np.zeros((24*3,)).tolist(),
                 'score': 0.0,
             })
 

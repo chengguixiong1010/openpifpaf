@@ -127,7 +127,7 @@ class Processor(object):
         keypoint_sets = [ann.data for ann in annotations]
         scores = [ann.score() for ann in annotations]
         if not keypoint_sets:
-            return np.zeros((0, 17, 3)), np.zeros((0,))
+            return np.zeros((0, 24, 3)), np.zeros((0,))#17
         keypoint_sets = np.array(keypoint_sets)
         scores = np.array(scores)
 
