@@ -1,10 +1,13 @@
 # openpifpaf
 
 
+将原代码中17点的coco数据，转为24点数据
+
 
 https://github.com/vita-epfl/openpifpaf
 
 
+需要根据数据关键点顺序修改。
 
 
 openpifpaf/network/heads.py ：94-100：
